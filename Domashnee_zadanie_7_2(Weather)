@@ -1,0 +1,44 @@
+import requests
+
+def get_weather(city):
+    # Сюда вставь свой ключ из WeatherAPI.com (в кавычках)
+    api_key = "65a5c726b13a4800921175046261511"
+    
+    url = "https://api.weatherapi.com/v1/current.json"
+    
+    # Параметры запроса: ключ, город, язык (ru - русский)
+    params = {
+        "key": api_key,
+        "q": city,
+        "lang": "ru"
+    }
+
+    try:
+        # Отправляем GET-запрос
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        # Извлекаем нужные данные
+        location_name = data['location']['name']
+        temperature = data['current']['temp_c']
+        description = data['current']['condition']['text']
+
+        print(f"Погода в городе {location_name}:")
+        print(f"Температура: {temperature}°C")
+        print(f"Описание: {description}")
+
+    except requests.exceptions.HTTPError:
+        if response.status_code == 400:
+            print("Ошибка: Город не найден. Проверьте название.")
+        elif response.status_code == 401:
+            print("Ошибка: Неверный API-ключ.")
+        else:
+            print(f"Ошибка запроса: {response.status_code}")
+    except Exception as e:
+        print(f"Произошла ошибка: {e}")
+
+if __name__ == "__main__":
+    # Принимаем город от пользователя
+    user_city = input("Введите название города (например, Москва или London): ")
+    get_weather(user_city)
